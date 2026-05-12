@@ -46,6 +46,8 @@ flask --app app run
 python smoke_test.py
 ```
 
+GitHub Actions also runs the smoke test on pushes and pull requests to `main`.
+
 ## Data privacy
 
 Do not commit proprietary customer drawings, real RMA events, customer names, defect logs, quote PDFs, private Excel trackers, exports, local databases, attendance data, or company-private records.
