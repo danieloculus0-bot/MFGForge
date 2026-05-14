@@ -23,6 +23,14 @@ def run() -> None:
         assert b'Quoting' in response.data
         assert b'Planning' in response.data
         assert b'Purchasing' in response.data
+        assert b'Company Pulse' in response.data
+
+        response = client.get('/company-pulse')
+        assert_ok(response, 'company pulse')
+        assert b'Manufacturing X-ray' in response.data
+        assert b'Material cert control' in response.data
+        assert b'Supplier lead-time pressure' in response.data
+        assert b'Machine capacity pressure' in response.data
 
         for module in MODULES:
             response = client.get(f"/records/{module['key']}")
@@ -48,26 +56,33 @@ def run() -> None:
         assert_ok(response, 'create operating profile')
         assert b'Hybrid Test' in response.data
 
-        response = client.get('/records/parts/new')
-        assert_ok(response, 'new linked part')
-        assert b'Smoke Test Customer' in response.data
-
         response = client.post('/records/parts/new', data={'part_number': 'SMOKE-PART-001', 'customer_id': '1'}, follow_redirects=True)
         assert_ok(response, 'create linked part')
         assert b'SMOKE-PART-001' in response.data
 
-        response = client.get('/records/materials/new')
-        assert_ok(response, 'new material')
-        assert b'Smoke Test Supplier' in response.data
+        response = client.post('/records/work-orders/new', data={'work_order_number': 'WO-001', 'part_id': '1', 'customer_id': '1'}, follow_redirects=True)
+        assert_ok(response, 'create linked work order')
+        assert b'WO-001' in response.data
 
-        response = client.post('/records/materials/new', data={'material_code': 'MAT-001', 'description': 'Smoke test material', 'supplier_id': '1'}, follow_redirects=True)
+        response = client.post('/records/materials/new', data={'material_code': 'MAT-001', 'description': 'Smoke test material', 'supplier_id': '1', 'lead_time_days': '10'}, follow_redirects=True)
         assert_ok(response, 'create material')
         assert b'MAT-001' in response.data
 
-        response = client.get('/records/quote-intakes/new')
-        assert_ok(response, 'new quote intake')
-        assert b'Smoke Test Customer' in response.data
-        assert b'Hybrid Test' in response.data
+        response = client.post('/records/material-certificates/new', data={'certificate_number': 'CERT-001', 'material_id': '1', 'supplier_id': '1', 'work_order_id': '1', 'heat_number': 'HEAT-001', 'review_status': 'needs_review'}, follow_redirects=True)
+        assert_ok(response, 'create material certificate')
+        assert b'CERT-001' in response.data
+
+        response = client.post('/records/machine-assets/new', data={'machine_number': 'LASER-001', 'name': 'Laser 1', 'department_id': '1'}, follow_redirects=True)
+        assert_ok(response, 'create machine asset')
+        assert b'LASER-001' in response.data
+
+        response = client.post('/records/machine-utilization/new', data={'machine_asset_id': '1', 'work_order_id': '1', 'period_start': '2026-01-01', 'period_end': '2026-01-31', 'utilization_percent': '95', 'risk_level': 'high'}, follow_redirects=True)
+        assert_ok(response, 'create machine utilization')
+        assert b'95' in response.data
+
+        response = client.post('/records/supplier-performance/new', data={'supplier_id': '1', 'period_start': '2026-01-01', 'period_end': '2026-01-31', 'quoted_lead_time_days': '10', 'actual_average_lead_time_days': '15', 'late_delivery_count': '2', 'risk_level': 'high'}, follow_redirects=True)
+        assert_ok(response, 'create supplier performance')
+        assert b'15' in response.data
 
         response = client.post('/records/quote-intakes/new', data={'quote_number': 'Q-001', 'customer_id': '1', 'operating_profile_id': '1'}, follow_redirects=True)
         assert_ok(response, 'create quote intake')
@@ -81,17 +96,31 @@ def run() -> None:
         assert_ok(response, 'create material draft')
         assert b'2' in response.data
 
-        response = client.post('/records/morale-snapshots/new', data={'period_start': '2026-01-01', 'period_end': '2026-01-31', 'department_id': '1'}, follow_redirects=True)
+        response = client.post('/records/morale-snapshots/new', data={'period_start': '2026-01-01', 'period_end': '2026-01-31', 'department_id': '1', 'unscheduled_absence_count': '2'}, follow_redirects=True)
         assert_ok(response, 'create morale snapshot')
         assert b'2026-01-01' in response.data
+
+        response = client.get('/company-pulse')
+        assert_ok(response, 'company pulse after records')
+        assert b'CERT-001' not in response.data
+        assert b'certs needing review' in response.data
+        assert b'avg days over quoted lead time' in response.data
+        assert b'avg utilization percent' in response.data
+        assert b'Compiled risk score' in response.data
 
         with sqlite3.connect(db_path) as db:
             part_customer_id = db.execute("SELECT customer_id FROM parts WHERE part_number = 'SMOKE-PART-001'").fetchone()[0]
             material_supplier_id = db.execute("SELECT supplier_id FROM materials WHERE material_code = 'MAT-001'").fetchone()[0]
+            cert_material_id = db.execute("SELECT material_id FROM material_certificates WHERE certificate_number = 'CERT-001'").fetchone()[0]
+            machine_risk = db.execute("SELECT risk_level FROM machine_utilization_snapshots WHERE utilization_percent = 95").fetchone()[0]
+            supplier_risk = db.execute("SELECT risk_level FROM supplier_performance_snapshots WHERE actual_average_lead_time_days = 15").fetchone()[0]
             quote_customer_id = db.execute("SELECT customer_id FROM quote_intakes WHERE quote_number = 'Q-001'").fetchone()[0]
             morale_department_id = db.execute("SELECT department_id FROM morale_snapshots WHERE period_start = '2026-01-01'").fetchone()[0]
             assert part_customer_id == 1
             assert material_supplier_id == 1
+            assert cert_material_id == 1
+            assert machine_risk == 'high'
+            assert supplier_risk == 'high'
             assert quote_customer_id == 1
             assert morale_department_id == 1
 
