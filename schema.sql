@@ -187,6 +187,67 @@ CREATE TABLE IF NOT EXISTS materials (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS material_certificates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    certificate_number TEXT,
+    cert_type TEXT NOT NULL DEFAULT 'material_cert',
+    material_id INTEGER REFERENCES materials(id),
+    supplier_id INTEGER REFERENCES suppliers(id),
+    work_order_id INTEGER REFERENCES work_orders(id),
+    heat_number TEXT,
+    lot_number TEXT,
+    purchase_order_number TEXT,
+    received_date TEXT,
+    document_date TEXT,
+    storage_reference TEXT,
+    review_status TEXT NOT NULL DEFAULT 'needs_review',
+    reviewed_by TEXT,
+    reviewer_notes TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS supplier_performance_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER REFERENCES suppliers(id),
+    period_start TEXT NOT NULL,
+    period_end TEXT NOT NULL,
+    quoted_lead_time_days REAL,
+    actual_average_lead_time_days REAL,
+    late_delivery_count INTEGER,
+    quality_issue_count INTEGER,
+    risk_level TEXT NOT NULL DEFAULT 'medium',
+    impact_notes TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS machine_assets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    machine_number TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    department_id INTEGER REFERENCES departments(id),
+    machine_type TEXT,
+    status TEXT NOT NULL DEFAULT 'active',
+    capacity_notes TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS machine_utilization_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    machine_asset_id INTEGER REFERENCES machine_assets(id),
+    work_order_id INTEGER REFERENCES work_orders(id),
+    period_start TEXT NOT NULL,
+    period_end TEXT NOT NULL,
+    committed_hours REAL,
+    available_hours REAL,
+    utilization_percent REAL,
+    risk_level TEXT NOT NULL DEFAULT 'medium',
+    impact_notes TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS quote_intakes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     quote_number TEXT NOT NULL UNIQUE,
@@ -340,4 +401,4 @@ CREATE TABLE IF NOT EXISTS ai_action_log (
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT OR IGNORE INTO system_meta (key, value) VALUES ('schema_version', '0.2.0');
+INSERT OR REPLACE INTO system_meta (key, value, updated_at) VALUES ('schema_version', '0.4.0', CURRENT_TIMESTAMP);
