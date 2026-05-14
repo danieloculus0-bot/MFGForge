@@ -23,6 +23,11 @@ def run() -> None:
         assert b'Quoting' in response.data
         assert b'Planning' in response.data
         assert b'Purchasing' in response.data
+        assert b'AI Governance' in response.data
+
+        response = client.get('/ai-policy')
+        assert_ok(response, 'ai policy')
+        assert b'Human-in-the-loop' in response.data
 
         for module in MODULES:
             response = client.get(f"/records/{module['key']}")
@@ -85,15 +90,21 @@ def run() -> None:
         assert_ok(response, 'create morale snapshot')
         assert b'2026-01-01' in response.data
 
+        response = client.post('/records/ai-action-log/new', data={'action_type': 'draft_recommendation', 'prompt_summary': 'Smoke test read-only recommendation', 'human_approval_status': 'draft'}, follow_redirects=True)
+        assert_ok(response, 'create ai action log')
+        assert b'draft_recommendation' in response.data
+
         with sqlite3.connect(db_path) as db:
             part_customer_id = db.execute("SELECT customer_id FROM parts WHERE part_number = 'SMOKE-PART-001'").fetchone()[0]
             material_supplier_id = db.execute("SELECT supplier_id FROM materials WHERE material_code = 'MAT-001'").fetchone()[0]
             quote_customer_id = db.execute("SELECT customer_id FROM quote_intakes WHERE quote_number = 'Q-001'").fetchone()[0]
             morale_department_id = db.execute("SELECT department_id FROM morale_snapshots WHERE period_start = '2026-01-01'").fetchone()[0]
+            ai_approval_status = db.execute("SELECT human_approval_status FROM ai_action_log WHERE action_type = 'draft_recommendation'").fetchone()[0]
             assert part_customer_id == 1
             assert material_supplier_id == 1
             assert quote_customer_id == 1
             assert morale_department_id == 1
+            assert ai_approval_status == 'draft'
 
     print('MFGForge smoke test passed.')
 
