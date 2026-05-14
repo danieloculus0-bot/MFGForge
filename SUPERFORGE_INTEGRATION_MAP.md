@@ -10,6 +10,8 @@ MFGForge remains the source-of-truth app repo for the SuperForge ERP Suite.
 
 `SuperForge_Unofficial` is only the build artifact and unofficial distribution repo. It may receive compiled libraries, release candidates, manifests, checksums, packaging notes, and installer experiments, but it should not receive live application source code as the canonical implementation.
 
+PM Tracking is a behavioral reference only. PM will be rebuilt natively inside MFGForge/SuperForge as `modules/pm` instead of copied from the old app.
+
 ## Target module architecture
 
 ```text
@@ -78,31 +80,9 @@ This is a target layout, not an immediate refactor order. The current app should
 
 Move only verified, reusable logic after inspecting actual ForgeQC files.
 
-Candidate logic for `modules/qc`:
+Candidate logic for `modules/qc` includes RMA, NCR, DMR, CAPA, deviation request workflow, quality event lifecycle fields, customer/part/work-order quality history, reason-code and defect trend logic, quality metrics and Pareto/reporting logic, FAIR or inspection report helpers if present, and quote/BOM quality review logic if present.
 
-- RMA workflow
-- NCR workflow
-- DMR workflow
-- CAPA workflow
-- deviation request workflow if stronger than MFGForge's native version
-- quality event lifecycle fields such as containment, root cause, corrective action, owner, due date, review status, and closure status
-- customer, part, and work-order quality history
-- reason-code and defect trend logic
-- quality metrics and Pareto/reporting logic
-- FAIR or inspection report helpers, if present
-- quote/BOM quality review logic, if present
-
-Expected MFGForge anchor tables:
-
-- `quality_events`
-- `deviations`
-- `reason_codes`
-- `customers`
-- `parts`
-- `work_orders`
-- `fpy_summaries`
-- `dashboard_metric_snapshots`
-- `ai_action_log`
+Expected MFGForge anchor tables include `quality_events`, `deviations`, `reason_codes`, `customers`, `parts`, `work_orders`, `fpy_summaries`, `dashboard_metric_snapshots`, and `ai_action_log`.
 
 Do not move real RMA data, real customer records, defect logs, inspection results, private Excel trackers, local databases, or customer-facing artifacts.
 
@@ -110,36 +90,17 @@ Do not move real RMA data, real customer records, defect logs, inspection result
 
 Move only verified, reusable logic after inspecting actual ForgeVault files.
 
-Candidate logic for `modules/vault`:
+Candidate logic for `modules/vault` includes vendor part intake, supplier and purchased part records, approved material records, McMaster-style vendor data intake patterns, controlled document metadata, document revision and approval status, material cert traceability helpers, document-to-ERP-record link patterns, search and retrieval patterns, and storage abstraction logic that avoids committing private files.
 
-- vendor part intake
-- supplier and purchased part records
-- approved material records
-- McMaster-style vendor data intake patterns
-- controlled document metadata
-- document revision and approval status
-- material cert traceability helpers
-- document-to-ERP-record link patterns
-- search and retrieval patterns
-- storage abstraction logic that avoids committing private files
-
-Expected MFGForge anchor tables:
-
-- `suppliers`
-- `materials`
-- `material_certificates`
-- `documents`
-- `parts`
-- `quote_intakes`
-- `work_orders`
+Expected MFGForge anchor tables include `suppliers`, `materials`, `material_certificates`, `documents`, `parts`, `quote_intakes`, and `work_orders`.
 
 Do not move proprietary customer drawings, quote PDFs, cert files, vendor exports, runtime databases, local storage folders, or private document examples.
 
-## What moves from PM Tracking
+## Native PM rebuild
 
-PM Tracking is pending local audit. Move only verified logic from `C:\Users\dboone\PM Tracking` after inspecting `main.txt`, `pm_data.xlsx`, `pm_app.db`, route logic, templates, QR generation, and export behavior.
+PM Tracking does not move as source code. It is a behavioral reference only.
 
-Known candidate logic for `modules/pm`:
+Known reference behavior:
 
 - machine status card logic
 - machine detail page workflow
@@ -151,17 +112,30 @@ Known candidate logic for `modules/pm`:
 - maintenance ticket form if implemented
 - dark dashboard UI patterns that fit the SuperForge interface
 
+Native MFGForge/SuperForge rebuild targets for `modules/pm`:
+
+- machine assets and PM assets
+- machine readiness status
+- PM schedules
+- PM completion history
+- maintenance tickets
+- secure QR label workflow
+- Excel import/export adapters
+- planning risk signals
+- Company Pulse maintenance signals
+
 Expected MFGForge anchor tables:
 
 - `pm_assets`
 - `machine_assets`
-- future PM schedule table
-- future PM completion history table
-- future maintenance ticket table
+- future `pm_schedules`
+- future `pm_completion_history`
+- future `pm_tickets`
+- future `pm_asset_status_snapshots`
 - `departments`
 - `dashboard_metric_snapshots`
 
-Do not move `pm_data.xlsx`, `pm_app.db`, employee-level data, machine-history private records, or QR links that expose local paths or unauthenticated mutable actions.
+Do not move `pm_data.xlsx`, `pm_app.db`, employee-level data, machine-history private records, exported spreadsheets, or QR links that expose local paths or unauthenticated mutable actions.
 
 ## What stays native in MFGForge
 
@@ -175,6 +149,7 @@ The following should remain native MFGForge concepts:
 - material catalog and material certificate control
 - quote intake, PDF BOM candidates, BOM reviews, and quote material drafts
 - planning and purchasing watchlists
+- native PM rebuild and machine-readiness signals
 - Company Pulse and dashboard metric snapshots
 - AI governance through `ai_action_log`
 - privacy-safe aggregate morale indicators
@@ -182,7 +157,7 @@ The following should remain native MFGForge concepts:
 
 ## Overlap map
 
-| Concept | MFGForge anchor | Expected source overlap | Decision |
+| Concept | MFGForge anchor | Expected source/reference overlap | Decision |
 | --- | --- | --- | --- |
 | Customers | `customers` | ForgeQC customer quality history | MFGForge owns identity. Source modules attach history. |
 | Suppliers | `suppliers` | ForgeVault supplier/vendor records | MFGForge owns supplier identity. ForgeVault contributes intake/detail logic. |
@@ -193,8 +168,8 @@ The following should remain native MFGForge concepts:
 | Quality events | `quality_events` | ForgeQC RMA/NCR/DMR/CAPA | Use ForgeQC lifecycle logic only after mapping to MFGForge identity. |
 | Deviations | `deviations` | ForgeQC deviation workflow | Preserve MFGForge approval control. Add stronger workflow fields only after audit. |
 | Documents | `documents` | ForgeVault document vault | Use ForgeVault workflow, but MFGForge owns ERP links. |
-| PM assets | `pm_assets`, `machine_assets` | PM Tracking machine cards and detail pages | Use PM Tracking workflow, MFGForge owns asset identity. |
-| QR labels | future `modules/pm/qr.py` | PM Tracking QR page | Preserve if secure and route-safe. |
+| PM assets | `pm_assets`, `machine_assets` | PM Tracking machine cards and detail behavior | Rebuild natively in MFGForge. Do not copy old PM app source. |
+| QR labels | future `modules/pm/qr.py` | PM Tracking QR page behavior | Rebuild securely and route-safe. |
 | Quoting | `quote_intakes`, `pdf_bom_candidates`, `bom_reviews`, `quote_material_drafts` | ForgeQC quote review, ForgeVault drawing refs | MFGForge owns quoting flow. External logic feeds review and references. |
 | Planning | `planning_watchlists`, `purchasing_watchlists` | PM downtime, supplier risk, quality risk | MFGForge owns planning signals. |
 | Intelligence | `ai_action_log`, future `modules/intelligence` | All modules | MFGForge governs AI assistance and approval logging. |
@@ -207,7 +182,7 @@ The following should remain native MFGForge concepts:
 | `core` | MFGForge | Active app host, schema owner, navigation, governance, local runtime. |
 | `modules/qc` | ForgeQC plus MFGForge anchors | ForgeQC should contribute specialized QC workflows after audit. MFGForge keeps ERP identity. |
 | `modules/vault` | ForgeVault plus MFGForge anchors | ForgeVault should contribute vendor/document patterns after audit. MFGForge keeps links and source of truth. |
-| `modules/pm` | PM Tracking plus MFGForge anchors | PM Tracking has the working machine/PM workflow. MFGForge keeps asset identity and ERP integration. |
+| `modules/pm` | Native MFGForge rebuild using PM Tracking behavior as reference | Avoid copying legacy app guts while preserving proven workflow behavior. |
 | `modules/quoting` | MFGForge | Current quote intake, BOM candidate, review, and material draft flow are native. |
 | `modules/planning` | MFGForge | Watchlists and capacity-risk logic belong in the ERP host. |
 | `modules/intelligence` | MFGForge | AI must be centralized, approval-gated, and logged. |
@@ -217,16 +192,16 @@ The following should remain native MFGForge concepts:
 
 1. Keep the current MFGForge baseline working.
 2. Merge documentation-only audit and map work first.
-3. Audit ForgeQC files directly and update this map with exact routes, models, schemas, tests, and utilities.
-4. Audit ForgeVault files directly and update this map with exact routes, models, schemas, tests, and utilities.
-5. Audit PM Tracking locally at `C:\Users\dboone\PM Tracking` without committing private files.
+3. Treat PM Tracking as behavioral reference only and rebuild PM natively inside MFGForge.
+4. Audit ForgeQC files directly and update this map with exact routes, models, schemas, tests, and utilities.
+5. Audit ForgeVault files directly and update this map with exact routes, models, schemas, tests, and utilities.
 6. Add tests around current MFGForge app behavior before major refactoring.
 7. Reconcile `app.py` registry logic with `module_registry.py` so there is one source of truth.
 8. Create empty `core` and `modules/*` folders only after tests protect current behavior.
 9. Move MFGForge-native code into `core`, `modules/quoting`, `modules/planning`, `modules/intelligence`, and `modules/reporting` first.
-10. Add ForgeVault document and supplier/material logic through empty migrations and import adapters, not data copy.
-11. Add ForgeQC quality workflow logic through mapped services and controlled extension tables, not duplicate disconnected tables.
-12. Add PM Tracking PM workflow through mapped services, QR routes, and export logic after local audit.
+10. Add the native PM skeleton, schema draft, read-only dashboard route, and tests before QR write actions.
+11. Add ForgeVault document and supplier/material logic through empty migrations and import adapters, not data copy.
+12. Add ForgeQC quality workflow logic through mapped services and controlled extension tables, not duplicate disconnected tables.
 13. Wire reporting after core workflows exist.
 14. Wire intelligence last so recommendations remain read-only or approval-gated.
 15. Build Windows executable from MFGForge source, then copy intentional artifacts into `SuperForge_Unofficial` release-candidate folders.
@@ -235,19 +210,6 @@ The following should remain native MFGForge concepts:
 
 AI can assist like GPS. It may summarize, draft, flag risk, suggest actions, and prepare review packets.
 
-AI must not silently approve or execute:
-
-- BOM approval
-- material assignment approval
-- material cert approval
-- deviation approval
-- quality event closure
-- quote release
-- shipment readiness
-- purchasing action
-- PM closure
-- machine readiness release
-- customer-facing communication
-- employee-level morale or performance decisions
+AI must not silently approve or execute BOM approval, material assignment approval, material cert approval, deviation approval, quality event closure, quote release, shipment readiness, purchasing action, PM closure, machine readiness release, customer-facing communication, or employee-level morale or performance decisions.
 
 Every business-critical AI suggestion must have human approval status and audit traceability.
