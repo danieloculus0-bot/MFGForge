@@ -97,10 +97,13 @@ AGENTS.md                         Agent/workflow rules for this repo
 MFGFORGE_MODULE_BLUEPRINT.md       Functional scope and implementation direction
 README.md                         Project overview
 app.py                            Flask app, UI shell, routes, and module metadata
+main.py                           Hosted Python/Replit entrypoint for the real SuperForge app
+superforge_app.py                  SuperForge wrapper around the MFGForge app
 schema.sql                        Durable SQLite schema
 smoke_test.py                     End-to-end smoke coverage for module screens and linked records
+scripts/verify_hosted_runtime.py  Replit/browser-hosted runtime verification
 requirements.txt                  Runtime dependencies
-.github/workflows/smoke-test.yml  GitHub Actions smoke test
+.github/workflows/smoke-test.yml  GitHub Actions smoke and hosted runtime checks
 ```
 
 ## Run locally
@@ -120,13 +123,52 @@ $env:MFGFORGE_DATABASE = "C:\\path\\to\\mfgforge.sqlite"
 $env:MFGFORGE_ENV = "development"
 ```
 
+## Run SuperForge locally
+
+```powershell
+python main.py
+```
+
+`main.py` launches the real SuperForge Flask app through `superforge_app.create_superforge_app`. It does not seed fake data and does not replace the app with a mockup.
+
+## Run in Replit or similar
+
+This runs the Flask source app, not the Windows `.exe`.
+
+Use this command:
+
+```bash
+python main.py
+```
+
+The hosted runtime binds to `0.0.0.0` and uses the `PORT` environment variable when provided. If no `PORT` is provided, it defaults to `8080`.
+
+The runtime database is created under `instance/superforge.sqlite` unless `MFGFORGE_DATABASE` is set. Do not commit runtime databases.
+
+## Windows executable build
+
+The Windows executable is built separately from the hosted web runtime.
+
+```powershell
+.\scripts\build_windows_exe.ps1
+```
+
+Expected packaged output:
+
+```text
+dist\SuperForge.exe
+```
+
+Build outputs belong in `SuperForge_Unofficial` or a release artifact flow, not as normal source files in MFGForge.
+
 ## Smoke test
 
 ```powershell
 python smoke_test.py
+python scripts/verify_hosted_runtime.py
 ```
 
-GitHub Actions also runs the smoke test on pushes and pull requests to `main`.
+GitHub Actions also runs the smoke test and hosted runtime verification on pushes and pull requests to `main`.
 
 ## Data privacy
 
