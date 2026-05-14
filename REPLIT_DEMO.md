@@ -34,6 +34,20 @@ The app starts with:
 python main.py
 ```
 
+## Optional verification before Run
+
+In the Replit Shell:
+
+```bash
+python scripts/verify_replit_demo.py
+```
+
+Expected output:
+
+```text
+SuperForge Replit demo verification passed.
+```
+
 ## Runtime behavior
 
 The demo binds to:
