@@ -10,6 +10,7 @@ from mfgforge_intelligence import (
     summarize_workflow_coverage,
     workflow_by_key,
 )
+from superforge_quoting import register_operation_quoting_routes
 
 
 def badge_class(severity: str) -> str:
@@ -23,6 +24,7 @@ def badge_class(severity: str) -> str:
 def create_superforge_app(test_config: dict | None = None) -> Flask:
     app = create_mfgforge_app(test_config)
     register_superforge_routes(app)
+    register_operation_quoting_routes(app)
     return app
 
 
@@ -55,7 +57,7 @@ def register_superforge_routes(app: Flask) -> None:
                 <h3>Compiled intelligence score</h3>
                 <p><span class='score'>{{ active_score }}</span> / 100</p>
                 <p>This score is intentionally lightweight. It surfaces risk and workflow pressure without turning the app into a slow analytics monster.</p>
-                <p><a class='button' href='{{ url_for('superforge_intelligence') }}'>Open Intelligence Hub</a></p>
+                <p><a class='button' href='{{ url_for('superforge_intelligence') }}'>Open Intelligence Hub</a> <a class='button' href='{{ url_for('quote_ops_home') }}'>Open Operations Quoting</a></p>
             </section>
             <section class='signals'>
                 {% for signal in signals %}
@@ -98,6 +100,7 @@ def register_superforge_routes(app: Flask) -> None:
                     <h2>Logic between the modules</h2>
                     <p>SuperForge does not just store records. It connects the records into plain-English manufacturing signals and review workflows.</p>
                 </div>
+                <a class='button' href='{{ url_for('quote_ops_home') }}'>Operations Quoting</a>
             </section>
             <section class='signals'>
                 {% for signal in signals %}
