@@ -1,6 +1,6 @@
 # MFGForge / SuperForge ERP Suite
 
-MFGForge is the source-of-truth application repo for the SuperForge ERP Suite: a local-first manufacturing ERP foundation for small and mid-size fabrication, machining, contract manufacturing, and job-shop environments.
+MFGForge is an earlier source foundation for the SuperForge ERP Suite; newer canonical ERP consolidation work is hosted in Axiom Beta: a local-first manufacturing ERP foundation for small and mid-size fabrication, machining, contract manufacturing, and job-shop environments.
 
 The project is built around QCDSM: Quality, Cost, Delivery, Safety, and Morale. The goal is not a toy dashboard or a loose pile of disconnected forms. The goal is a practical, deployable manufacturing system with durable records, traceable workflows, editable master data, review gates, privacy-safe operational metrics, and human-approved intelligence across quality, quoting, purchasing, planning, maintenance, documents, and management reporting.
 
@@ -30,13 +30,13 @@ The app starts empty. No fake customer, shop, quality, attendance, maintenance, 
 
 | Repo or system | Role |
 | --- | --- |
-| `danieloculus0-bot/MFGForge` | Primary source repo and integration host for the SuperForge ERP application. |
+| `danieloculus0-bot/MFGForge` | Historical SuperForge source foundation; Axiom Beta is the current consolidation target. |
 | `danieloculus0-bot/ForgeQC` | Quality and quoting intelligence source project to audit and selectively absorb. |
 | `danieloculus0-bot/ForgeVault` | Vendor, purchased part, material, supplier, document, and traceability source project to audit and selectively absorb. |
 | PM Tracking | Behavioral reference for the future native preventive maintenance module. It will not be copied as source. |
 | `danieloculus0-bot/SuperForge_Unofficial` | Build artifact and unofficial distribution repo for compiled outputs, release candidates, manifests, checksums, packaging notes, and installer experiments. |
 
-MFGForge remains the canonical source repo. SuperForge_Unofficial is for packaged artifacts and release-candidate outputs, not the main application source.
+Axiom Beta is now the canonical ERP consolidation target. MFGForge remains the earlier source foundation; SuperForge_Unofficial remains the package/artifact planning repository.
 
 ## Suite vision
 
@@ -468,3 +468,9 @@ Recommended next steps:
 7. Keep runtime build artifacts in `SuperForge_Unofficial`, not in MFGForge.
 
 SuperForge should grow carefully: one working, traceable, tested manufacturing workflow at a time.
+
+## Portfolio consolidation note (2026-10-20)
+
+**Current role: historical SuperForge source foundation and compatibility/reference project.** The newer [Axiom Beta](https://github.com/danieloculus0-bot/Axiom_Beta) repository is now the **canonical ERP consolidation target**, with its own event/audit spine and explicit native services. That change does **not** automatically migrate any existing MFGForge runtime database, deployment, or feature. Older passages above describing MFGForge as the primary source describe the earlier development phase. The last visible MFGForge smoke workflow passed September 25; no production integration or fully unified suite is implied.
+
+[Portfolio audit and the 15-repository responsibility map](https://github.com/danieloculus0-bot/Axiom_Beta/blob/main/docs/PORTFOLIO_AUDIT_2026-10-20.md).
