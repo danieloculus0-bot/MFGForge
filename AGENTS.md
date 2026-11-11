@@ -2,11 +2,11 @@
 
 ## Active project
 
-MFGForge is the active ERP system project.
+MFGForge is a historical Flask/SQLite ERP source line. Axiom_Beta is the active ERP consolidation target. Maintain this repository as a runnable reference and migration source; do not claim it is synchronized with Axiom.
 
 Repo: `danieloculus0-bot/MFGForge`
 
-This is not PM-Tracker, ForgeQC, EZ-FAIR, ForgeVault, venvWin, LAYR, or any other side project. Those projects may provide module history, lessons, or reusable ideas, but they are not the active repository unless the user explicitly says so.
+This is not PM-Tracker, ForgeQC, EZ-FAIR, ForgeVault, venvWin, LAYR, or any other side project. Those projects may provide module history, lessons, or reusable ideas. For new cross-module ERP integration, inspect Axiom_Beta first and coordinate changes through its existing interfaces.
 
 ## Product purpose
 
@@ -30,7 +30,7 @@ Do not invent paths, APIs, modules, tables, or fake data.
 
 Do not blindly rewrite the project.
 
-Do not create placeholder demo records or fake customer/manufacturing data.
+Do not create misleading placeholder demo records or real customer/manufacturing data. When tests require records, use clearly labeled, wholly synthetic fictional fixtures.
 
 Make grounded edits based only on actual files in the repo.
 
