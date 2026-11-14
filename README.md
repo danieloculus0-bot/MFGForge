@@ -1,3 +1,5 @@
+> **Lifecycle: successful executable ERP prototype archive, superseded (owner disposition, November 14, 2026).** This source line established a runnable Flask/SQLite manufacturing workflow foundation with historical smoke-test evidence; its prototype purpose is complete. [Axiom_Beta](https://github.com/danieloculus0-bot/Axiom_Beta) supersedes it for ongoing integrated ERP development. Preserve functional source, test evidence and the historical reference; do not count this as a stalled active product. **This does not assert production deployment, automatic data migration into Axiom, or proof that every historical feature is reimplemented.** This is a lifecycle designation, not confirmation that GitHub's Archived flag is set.
+
 # MFGForge / historical SuperForge source
 
 Earlier Flask/SQLite manufacturing ERP foundation, with linked quality, production, purchasing, quotations, PM and operational reporting features. **Axiom Beta is the current ERP consolidation target**; this repository remains a separate earlier source line.
